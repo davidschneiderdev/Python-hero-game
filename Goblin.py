@@ -3,7 +3,7 @@ from Character import Character
 
 class Goblin(Character):
 
-    def __init__(self, title="The Goblin", health=6, power=2):
-        self.title = title
-        self.health = health
-        self.power = power
+    def __init__(self, title, health, power):
+        super().__init__(title, health, power)
+
+
