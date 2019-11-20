@@ -12,7 +12,6 @@ class Character(object):
         self.coins = coins
         self.bounty = bounty
         self.armor = armor
-        self.evade = evade
         self.swap = swap
         self.items = []
 
@@ -22,23 +21,10 @@ class Character(object):
     def attack(self, enemy):
         if not self.is_alive():
             return
-        if self.swap:
-            self.swap_attack(enemy)
         else:
             print("%s attacks %s" % (self.name, enemy.name))
             enemy.receive_damage(self.power)
             time.sleep(1.5)
-    
-    def swap_attack(self, enemy):
-        self.power, enemy.power = enemy.power, self.power
-        print(f"Swap talisman traded the power of {self.name} with {enemy.name}'s power!")
-        print("%s attack was ALSO very effective! Double damage points dealt to %s." % (self.name, enemy.name))
-        enemy.receive_damage(self.power)
-        self.power, enemy.power = enemy.power, self.power
-        print("**The power of the swap talisman has been used up.**")
-        print("Powers now traded back.")
-        self.swap = False
-        time.sleep(1.5)
 
     def receive_damage(self, points):
         self.health -= points
@@ -68,7 +54,6 @@ class Character(object):
             item_choice = int(input("Enter item number: "))
             return item_choice
             
-
     def buy(self, item):
         self.coins -= item.cost
         if item.name in ['armor', 'sword', 'evade points']:
@@ -83,38 +68,26 @@ class Character(object):
 
 class Hero(Character):
     def __init__(self, name):
-        super().__init__(name)    
+        super().__init__(name) 
+        self.swap = False
+        self.evade = 0 
 
     def restore(self):
         self.health = 10
         print("Hero's heath is restored to %d!" % self.health)
         time.sleep(1)
 
-    def swap_attack(self, enemy):
-        self.power, enemy.power = enemy.power, self.power
-        print(f"Swap talisman traded the power of {self.name} with {enemy.name}'s power!")
-        print("%s attack was ALSO very effective! Double damage points dealt to %s." % (self.name, enemy.name))
-        enemy.receive_damage(self.power)
-        self.power, enemy.power = enemy.power, self.power
-        print("**The power of the swap talisman Hashtag  been used up.**")
-        print("Powers now traded back.")
-        self.swap = False
-        time.sleep(1.5)
-
-    def swap_attack_double(self, enemy):
-        self.power, enemy.power = enemy.power, self.power
-        print(f"Swap talisman traded the power of {self.name} with {enemy.name}'s power!")
-        print(f"")
-        print("%s attacks %s" % (self.name, enemy.name))
-        double_points = self.power * 2
-        enemy.receive_damage(double_points)
-        self.power, enemy.power = enemy.power, self.power
-        print("**The power of the swap talisman has been used up.**")
-        print("Powers now traded back.")
-        self.swap = False
-        time.sleep(1.5)
+    def print_status(self, enemy):
+        if self.swap == True:
+            print("%s has %d health and NOW has power of %d." % (self.name, self.health, enemy.power))
+        elif enemy.swap == True:
+            print("%s has %d health and NOW has power of %d." % (self.name, self.health, enemy.power))
+        else:
+            print("%s has %d health and %d power." % (self.name, self.health, self.power))
 
     def attack(self, enemy):
+        if not self.is_alive():
+            return
         double_damage = random.random() <= 0.2
         if double_damage:
             if self.swap == True:
@@ -125,11 +98,32 @@ class Hero(Character):
                 print(double_points)
                 enemy.receive_damage(double_points)
                 time.sleep(1.5)
+        elif self.swap == True:
+            self.swap_attack(enemy)
         else:
             super().attack(enemy)
 
-    # def equip_armor(self, boolean=False):
-    #     self.armor = boolean
+    def swap_attack(self, enemy):
+        self.power, enemy.power = enemy.power, self.power
+        print(f"Swap talisman traded the power of {self.name} with {enemy.name}'s power!")
+        enemy.receive_damage(self.power)
+        self.power, enemy.power = enemy.power, self.power
+        print("**The power of the swap talisman been used up.**")
+        print("Powers now traded back.")
+        self.swap = False
+        time.sleep(1.5)
+
+    def swap_attack_double(self, enemy):
+        self.power, enemy.power = enemy.power, self.power
+        print("%s attacks %s" % (self.name, enemy.name))
+        double_points = self.power * 2
+        enemy.receive_damage(double_points)
+        print(double_points)
+        self.power, enemy.power = enemy.power, self.power
+        print("**The power of the swap talisman has been used up.**")
+        print("Powers now traded back.")
+        self.swap = False
+        time.sleep(1.5)
     
     def receive_damage(self, points):
         evade_chance = random.random() <= (0.05 * self.evade)
@@ -142,7 +136,6 @@ class Hero(Character):
             print("%s received %d damage." % (self.name, reduced_points))
             if not self.is_alive():
                 print("Oh no! %s is dead." % self.name)
-
 
 class Goblin(Character):
     def __init__(self, name):
@@ -280,7 +273,6 @@ class Tonic:
         print("%s's health increased to %d." % (character.name, character.health))
         character.items.remove(self)
 
-
 class SuperTonic:
     cost = 8
     name = 'super tonic'
@@ -320,9 +312,7 @@ class Swap:
     name = 'swap talisman'
     def apply(self, hero):
         hero.swap = True
-        character.items.remove(self)
-
-        
+        hero.items.remove(self)
 
 class Store:
     # If you define a variable in the scope of a class:
@@ -352,7 +342,7 @@ class Store:
                     print("**Do not have enough coins**")
 
 hero = Hero('Percival')
-enemies = [Goblin('Kreten'), Zombie('Zombie')]
+enemies = [Goblin('Kreten'), Elf('Happy'), Shadow('Shadow')]
 battle_engine = Battle()
 shopping_engine = Store()
 
