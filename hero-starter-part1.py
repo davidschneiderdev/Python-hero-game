@@ -1,3 +1,5 @@
+from Character import Character
+
 from Hero import Hero
 
 from Goblin import Goblin
@@ -19,10 +21,10 @@ def main():
     # goblin_health = 6
     # goblin_power = 2
 
-    hero = Hero()
-    goblin = Goblin()
-    zombie = Zombie()
-    enemy = zombie
+    hero = Hero("Lancelot", 10, 3)
+    goblin = Goblin("Cretan", 8, 1)
+    zombie = Zombie("Zombo", 5, 2)
+    enemy = goblin
 
     while enemy.is_alive() and hero.is_alive():
         hero.print_status()
